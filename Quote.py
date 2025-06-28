@@ -20,9 +20,6 @@ class Quote(models.Model):
     likes = models.PositiveIntegerField(default=0)
     dislikes = models.PositiveIntegerField(default=0)
 
-    # Дата и время создания
-    created_at = models.DateTimeField(auto_now_add=True)
-
     class Meta:
         # Уникальность по тексту и источнику
         unique_together = ('text', 'source')
@@ -35,11 +32,6 @@ class Quote(models.Model):
         if Quote.objects.filter(source=self.source).count() >= 3 and not self.pk:
             raise ValidationError(f"У источника «{self.source}» уже есть 3 цитаты.")
 
-    def save(self, *args, **kwargs):
-        # Запускаем валидацию перед сохранением
-        self.full_clean()
-        super().save(*args, **kwargs)
+    
 
-    def __str__(self):
-        # Удобное строковое представление объекта
-        return f'"{self.text[:50]}" — {self.source}'
+   
