@@ -12,11 +12,24 @@
             <p>"{{ quote.text }}"</p>
             <footer>— {{ quote.source }}</footer>
         </blockquote>
+
         <p>Просмотров: {{ quote.views }}</p>
+        <p>👍 {{ quote.likes }} | 👎 {{ quote.dislikes }}</p>
+
+        <form action="{% url 'like_quote' quote.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit">👍 Лайк</button>
+        </form>
+
+        <form action="{% url 'dislike_quote' quote.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit">👎 Дизлайк</button>
+        </form>
     {% else %}
         <p>Цитаты пока не добавлены.</p>
     {% endif %}
 
-    <a href="{% url 'random_quote' %}">Показать другую</a>
+    <a href="{% url 'random_quote' %}">Показать другую</a> |
+    <a href="{% url 'top_quotes' %}">Топ 10 по лайкам</a>
 </body>
 </html>

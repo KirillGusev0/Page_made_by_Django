@@ -1,8 +1,10 @@
 
 import random
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .forms import QuoteForm
 from .models import Quote
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 def add_quote(request):
     if request.method == 'POST':
@@ -37,3 +39,22 @@ def random_quote(request):
     selected.save()
 
     return render(request, 'random_quote.html', {'quote': selected})
+
+
+
+
+def like_quote(request, quote_id):
+    quote = get_object_or_404(Quote, pk=quote_id)
+    quote.likes += 1
+    quote.save()
+    return HttpResponseRedirect(reverse('random_quote'))
+
+def dislike_quote(request, quote_id):
+    quote = get_object_or_404(Quote, pk=quote_id)
+    quote.dislikes += 1
+    quote.save()
+    return HttpResponseRedirect(reverse('random_quote'))
+
+def top_quotes(request):
+    top_10 = Quote.objects.order_by('-likes')[:10]
+    return render(request, 'top_quotes.html', {'quotes': top_10})
