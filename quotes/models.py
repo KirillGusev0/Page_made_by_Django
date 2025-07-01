@@ -20,6 +20,8 @@ class Quote(models.Model):
     likes = models.PositiveIntegerField(default=0)
     dislikes = models.PositiveIntegerField(default=0)
 
+    views = models.PositiveIntegerField(default=0)  # Счётчик просмотров
+
     class Meta:
         # Уникальность по тексту и источнику
         unique_together = ('text', 'source')
@@ -33,5 +35,4 @@ class Quote(models.Model):
             raise ValidationError(f"У источника «{self.source}» уже есть 3 цитаты.")
 
     
-
-   
+    
