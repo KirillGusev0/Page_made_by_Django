@@ -6,6 +6,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 
+
 class Quote(models.Model):
     # Текст цитаты, должен быть уникальным
     text = models.TextField(unique=True)
@@ -13,7 +14,7 @@ class Quote(models.Model):
     # Источник цитаты
     source = models.CharField(max_length=255)
 
-    # Вес цитаты 
+    # Вес цитаты
     weight = models.PositiveIntegerField(default=1)
 
     # Количество лайков и дизлайков
@@ -24,7 +25,7 @@ class Quote(models.Model):
 
     class Meta:
         # Уникальность по тексту и источнику
-        unique_together = ('text', 'source')
+        unique_together = ("text", "source")
 
     def clean(self):
         """
@@ -33,6 +34,3 @@ class Quote(models.Model):
         """
         if Quote.objects.filter(source=self.source).count() >= 3 and not self.pk:
             raise ValidationError(f"У источника «{self.source}» уже есть 3 цитаты.")
-
-    
-    
