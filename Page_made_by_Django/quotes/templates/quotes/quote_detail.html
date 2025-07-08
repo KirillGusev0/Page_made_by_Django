@@ -1,7 +1,0 @@
-<h1>{{ quote.text }}</h1>
-<p><strong>Источник:</strong> {{ quote.source }}</p>
-<p><strong>Вес:</strong> {{ quote.weight }}</p>
-
-<a href="{% url 'like_quote' quote.id %}">👍 Лайк</a>
-<a href="{% url 'dislike_quote' quote.id %}">👎 Дизлайк</a>
-<a href="{% url 'random_quote' %}">🎲 Следующая случайная</a>
