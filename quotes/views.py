@@ -2,8 +2,8 @@ import random
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import QuoteForm
 from .models import Quote
-from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.db.models import Sum
+
 
 
 def add_quote(request):
@@ -21,37 +21,41 @@ def add_quote(request):
 
 
 def random_quote(request):
-    # Получаем все цитаты с их весами
-    quotes = list(Quote.objects.all())
-    if not quotes:
-        return render(request, "random_quote.html", {"quote": None})
+    total_weight = Quote.objects.aggregate(total=Sum('weight'))['total']
+    if total_weight is None or total_weight == 0:
+        quote = None
+    else:
+        target = random.uniform(0, total_weight)
+        cumulative_weight = 0
+        quote = None
 
-    # Готовим список весов
-    weights = [quote.weight for quote in quotes]
+        # Используем order_by('?') + фильтрацию по весу для имитации случайного выбора
+        for q in Quote.objects.order_by('id'):
+            cumulative_weight += q.weight
+            if cumulative_weight >= target:
+                quote = q
+                break
 
-    # Выбираем случайную цитату с учётом веса
-    selected = random.choices(quotes, weights=weights, k=1)[0]
-
-    # Увеличиваем счётчик просмотров
-    selected.views += 1
-    selected.save()
-
-    return render(request, "random_quote.html", {"quote": selected})
+    return render(request, "quotes/random_quote.html", {"quote": quote})
 
 
 def like_quote(request, quote_id):
-    quote = get_object_or_404(Quote, pk=quote_id)
-    quote.likes += 1
+    quote = get_object_or_404(Quote, id=quote_id)
+    quote.weight += 1
     quote.save()
-    return HttpResponseRedirect(reverse("random_quote"))
+    return redirect("quote_detail", quote_id=quote.id)
 
 
 def dislike_quote(request, quote_id):
-    quote = get_object_or_404(Quote, pk=quote_id)
-    quote.dislikes += 1
-    quote.save()
-    return HttpResponseRedirect(reverse("random_quote"))
+    quote = get_object_or_404(Quote, id=quote_id)
+    if quote.weight > 0:
+        quote.weight -= 1
+        quote.save()
+    return redirect("quote_detail", quote_id=quote.id)
 
+def quote_detail(request, quote_id):
+    quote = get_object_or_404(Quote, id=quote_id)
+    return render(request, "quotes/quote_detail.html", {"quote": quote})
 
 def top_quotes(request):
     top_10 = Quote.objects.order_by("-likes")[:10]
